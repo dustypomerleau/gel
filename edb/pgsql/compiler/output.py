@@ -239,14 +239,20 @@ def array_as_json_object(
         )
     elif irtyputils.is_array(el_type):
         el_name = 'f1'
-        coldeflist = [
-            pgast.ColumnDef(
-                name=str(el_name),
-                typename=pgast.TypeName(
-                    name=pgtypes.pg_type_from_ir_typeref(el_type),
-                ),
-            )
-        ]
+        if (
+            styperef.padded_array_type is not None
+            and styperef.padded_array_type.in_schema
+        ):
+            coldeflist = None
+        else:
+            coldeflist = [
+                pgast.ColumnDef(
+                    name=str(el_name),
+                    typename=pgast.TypeName(
+                        name=pgtypes.pg_type_from_ir_typeref(el_type),
+                    ),
+                )
+            ]
         agg_arg = serialize_expr_to_json(
             pgast.ColumnRef(name=[str(el_name)]),
             styperef=el_type,
